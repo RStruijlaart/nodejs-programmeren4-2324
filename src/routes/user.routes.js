@@ -8,7 +8,7 @@ const logger = require('../util/logger')
 
 // Tijdelijke functie om niet bestaande routes op te vangen
 const notFound = (req, res, next) => {
-    res.status(404).json({
+    next({
         status: 404,
         message: 'Route not found',
         data: {}
