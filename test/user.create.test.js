@@ -6,6 +6,7 @@ const tracer = require('tracer')
 chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
+tracer.setLevel('warn')
 
 const endpointToTest = '/api/user'
 
