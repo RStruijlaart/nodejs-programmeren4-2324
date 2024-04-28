@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000
 app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
     const info = {
-        name: 'My Nodejs Express server',
+        name: 'My Nodejs Express server test',
         version: '0.0.1',
         description: 'This is a simple Nodejs Express server'
     }
