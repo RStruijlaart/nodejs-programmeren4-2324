@@ -21,7 +21,7 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         chai.expect(req.body.firstName).to.be.a('string')
         chai.expect(req.body.firstName).to.match(
             /^[a-zA-Z]+$/,
-            'firstName must be a string'
+            'Invalid firstName'
         )
 
         assert(req.body.lastName, 'Missing or incorrect lastName field')
@@ -29,20 +29,24 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         chai.expect(req.body.lastName).to.be.a('string')
         chai.expect(req.body.lastName).to.match(
             /^[a-zA-Z\s]+$/,
-            'lastName must be a string'
+            'Invalid lastName'
         )
 
         assert(req.body.emailAdress, 'Missing or incorrect emailAdress field')
         chai.expect(req.body.emailAdress).to.not.be.empty
         chai.expect(req.body.emailAdress).to.be.a('string')
         chai.expect(req.body.emailAdress).to.match(
-            /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
-            'emailAdress must be a string'
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/,
+            'Invalid emailAdress'
         )
 
         assert(req.body.password, 'Missing or incorrect password field')
         chai.expect(req.body.password).to.not.be.empty
         chai.expect(req.body.password).to.be.a('string')
+        chai.expect(req.body.emailAdress).to.match(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+            'Invalid password'
+        )
         
         if (req.body.isActive) {
             chai.expect(req.body.isActive).to.be.a('boolean')
@@ -53,7 +57,7 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         chai.expect(req.body.street).to.be.a('string')
         chai.expect(req.body.street).to.match(
             /^[a-zA-Z0-9\s]+$/,
-            'street must be a string'
+            'Invalid street'
         )
         
         assert(req.body.city, 'Missing or incorrect city field')
@@ -61,15 +65,15 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         chai.expect(req.body.city).to.be.a('string')
         chai.expect(req.body.city).to.match(
             /^[a-zA-Z\s]+$/,
-            'city must be a string'
+            'Invalid city'
         )
 
         assert(req.body.phoneNumber, 'Missing or incorrect phoneNumber field')
         chai.expect(req.body.phoneNumber).to.not.be.empty
         chai.expect(req.body.phoneNumber).to.be.a('string')
         chai.expect(req.body.phoneNumber).to.match(
-            /^[0-9\s]+$/,
-            'phoneNumber must be a string'
+            /^06[-\s]?\d{8}$/,
+            'Invalid phoneNumber'
         )
 
         assert(req.body.roles, 'Missing or incorrect roles field')
