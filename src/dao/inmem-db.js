@@ -17,7 +17,8 @@ const database = {
             isActive: true,
             street: 'oosthof 4',
             city: 'kloosterzande',
-            phoneNumber: '06-12345678'
+            phoneNumber: '06-12345678',
+            roles: []
         },
         {
             id: 1,
@@ -28,7 +29,8 @@ const database = {
             isActive: true,
             street: 'oosthof 4',
             city: 'kloosterzande',
-            phoneNumber: '06-12345678'
+            phoneNumber: '06-12345678',
+            roles: []
         }
     ],
 
