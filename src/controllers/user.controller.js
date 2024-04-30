@@ -6,7 +6,8 @@ let userController = {
         //
         // Todo: Validate user input
         //
-        userService.create(user, (error, success) => {
+
+        userService.getAll((error, success) => {
             if (error) {
                 return next({
                     status: error.status,
@@ -15,10 +16,31 @@ let userController = {
                 })
             }
             if (success) {
-                res.status(200).json({
-                    status: success.status,
-                    message: success.message,
-                    data: success.data
+                const emailExists = success.data.some(obj => obj.emailAdress === user.emailAdress);
+
+                if(emailExists){
+                    return next({
+                        status: 409,
+                        message: 'Email adress already in use',
+                        data: {}
+                    })
+                }
+
+                userService.create(user, (error, success) => {
+                    if (error) {
+                        return next({
+                            status: error.status,
+                            message: error.message,
+                            data: {}
+                        })
+                    }
+                    if (success) {
+                        res.status(200).json({
+                            status: success.status,
+                            message: success.message,
+                            data: success.data
+                        })
+                    }
                 })
             }
         })
