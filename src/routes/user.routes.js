@@ -44,8 +44,9 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         chai.expect(req.body.password).to.not.be.empty
         chai.expect(req.body.password).to.be.a('string')
         
-        assert(req.body.isActive, 'Missing or incorrect isActive field')
-        chai.expect(req.body.isActive).to.be.a('boolean')
+        if (req.body.isActive) {
+            chai.expect(req.body.isActive).to.be.a('boolean')
+        }
 
         assert(req.body.street, 'Missing or incorrect street field')
         chai.expect(req.body.street).to.not.be.empty
