@@ -81,6 +81,7 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         
         next()
     } catch (ex) {
+        console.log(ex.message);
         return res.status(400).json({
             status: 400,
             message: ex.message,
