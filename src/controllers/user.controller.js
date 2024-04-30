@@ -3,9 +3,6 @@ const userService = require('../services/user.service')
 let userController = {
     create: (req, res, next) => {
         const user = req.body
-        //
-        // Todo: Validate user input
-        //
 
         userService.getAll((error, success) => {
             if (error) {
@@ -35,7 +32,7 @@ let userController = {
                         })
                     }
                     if (success) {
-                        res.status(200).json({
+                        res.status(201).json({
                             status: success.status,
                             message: success.message,
                             data: success.data
