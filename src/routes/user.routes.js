@@ -43,7 +43,7 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         assert(req.body.password, 'Missing or incorrect password field')
         chai.expect(req.body.password).to.not.be.empty
         chai.expect(req.body.password).to.be.a('string')
-        chai.expect(req.body.emailAdress).to.match(
+        chai.expect(req.body.password).to.match(
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
             'Invalid password'
         )
