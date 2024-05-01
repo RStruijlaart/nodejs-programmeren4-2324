@@ -54,6 +54,19 @@ const userService = {
                 })
             }
         })
+    },
+
+    delete: (userId, callback) => {
+        database.delete(userId,(err, data) => {
+            if (err) {
+                callback(err, null)
+            } else {
+                callback(null, {
+                    message: `User with id ${userId} has been deleted`,
+                    data: data
+                })
+            }
+        })
     }
 }
 

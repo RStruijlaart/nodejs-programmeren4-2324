@@ -89,6 +89,21 @@ const database = {
                 console.log(this._data[id])
             }
         }, this._delayTime)
+    },
+
+    delete(id, callback) {
+        // Simuleer een asynchrone operatie
+        setTimeout(() => {
+            if (id < 0 || id >= this._data.length) {
+                callback({ message: `Error: id ${id} does not exist!`, status: 404}, null)
+            } else {
+
+                const indexToDelete = this._data.findIndex(obj => obj.id === parseInt(id));
+                this._data = this._data.splice(indexToDelete, 1);
+                
+                callback(null, null)
+            }
+        }, this._delayTime)
     }
 }
 
