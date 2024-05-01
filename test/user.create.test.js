@@ -134,10 +134,10 @@ describe('UC201 Registreren als nieuwe user', () => {
             })
             .end((err, res) => {
                 
-                chai.expect(res).to.have.status(409)
+                chai.expect(res).to.have.status(403)
                 chai.expect(res).not.to.have.status(200)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(409)
+                chai.expect(res.body).to.have.property('status').equals(403)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals("Email adress already in use")
