@@ -40,6 +40,20 @@ const userService = {
                 })
             }
         })
+    },
+
+    update: (userId, user, callback) => {
+        database.update(userId, user,(err, data) => {
+            if (err) {
+                callback(err, null)
+            } else {
+                console.log(data)
+                callback(null, {
+                    message: `Updated user with id ${data.id}.`,
+                    data: data
+                })
+            }
+        })
     }
 }
 

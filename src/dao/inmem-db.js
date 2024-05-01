@@ -70,9 +70,26 @@ const database = {
             // met het toegevoegde item als argument, of null als er een fout is opgetreden
             callback(null, item)
         }, this._delayTime)
-    }
+    },
 
-    // Voeg zelf de overige database functionaliteit toe
+    update(id, item, callback) {
+        // Simuleer een asynchrone operatie
+        setTimeout(() => {
+            if (id < 0 || id >= this._data.length) {
+                callback({ message: `Error: id ${id} does not exist!`, status: 404}, null)
+            } else {
+                
+                for (let field in this._data[id]) {
+                    if(field !== 'id'){
+                        this._data[id][field] = item[field];
+                    }
+                }
+
+                callback(null, this._data[id])
+                console.log(this._data[id])
+            }
+        }, this._delayTime)
+    }
 }
 
 module.exports = database
