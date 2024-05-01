@@ -17,7 +17,7 @@ let userController = {
 
                 if(emailExists){
                     return next({
-                        status: 409,
+                        status: 403,
                         message: 'Email adress already in use',
                         data: {}
                     })
