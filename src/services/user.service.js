@@ -14,8 +14,8 @@ const userService = {
         })
     },
 
-    getAll: (callback) => {
-        database.getAll((err, data) => {
+    getAll: (filterFields, callback) => {
+        database.getAll(filterFields, (err, data) => {
             if (err) {
                 callback(err, null)
             } else {
@@ -36,6 +36,33 @@ const userService = {
                 console.log(data)
                 callback(null, {
                     message: `Found user with id ${data.id}.`,
+                    data: data
+                })
+            }
+        })
+    },
+
+    update: (userId, user, callback) => {
+        database.update(userId, user,(err, data) => {
+            if (err) {
+                callback(err, null)
+            } else {
+                console.log(data)
+                callback(null, {
+                    message: `Updated user with id ${data.id}.`,
+                    data: data
+                })
+            }
+        })
+    },
+
+    delete: (userId, callback) => {
+        database.delete(userId,(err, data) => {
+            if (err) {
+                callback(err, null)
+            } else {
+                callback(null, {
+                    message: `User with id ${userId} has been deleted`,
                     data: data
                 })
             }

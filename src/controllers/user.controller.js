@@ -44,7 +44,8 @@ let userController = {
     },
 
     getAll: (req, res, next) => {
-        userService.getAll((error, success) => {
+        const filterFields = req.query
+        userService.getAll(filterFields, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
@@ -80,9 +81,48 @@ let userController = {
                 })
             }
         })
-    }
+    },
 
-    // Todo: Implement the update and delete methods
+    update: (req, res, next) => {
+        const userId = req.params.userId
+        const user = req.body
+        userService.update(userId, user,(error, success) => {
+            if (error) {
+                return next({
+                    status: error.status,
+                    message: error.message,
+                    data: {}
+                })
+            }
+            if (success) {
+                res.status(200).json({
+                    status: 200,
+                    message: success.message,
+                    data: success.data
+                })
+            }
+        })
+    },
+
+    delete: (req, res, next) => {
+        const userId = req.params.userId
+        userService.delete(userId,(error, success) => {
+            if (error) {
+                return next({
+                    status: error.status,
+                    message: error.message,
+                    data: {}
+                })
+            }
+            if (success) {
+                res.status(200).json({
+                    status: 200,
+                    message: success.message,
+                    data: success.data
+                })
+            }
+        })
+    }
 }
 
 module.exports = userController
