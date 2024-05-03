@@ -4,7 +4,7 @@ const logger = require('../util/logger')
 let userController = {
     create: (req, res, next) => {
         const user = req.body
-        logger.info('create user', user.firstName, user.lastName)
+
         userService.create(user, (error, success) => {
             if (error) {
                 return next({
@@ -14,7 +14,7 @@ let userController = {
                 })
             }
             if (success) {
-                res.status(200).json({
+                res.status(201).json({
                     status: success.status,
                     message: success.message,
                     data: success.data
@@ -24,16 +24,16 @@ let userController = {
     },
 
     getAll: (req, res, next) => {
-        logger.trace('getAll')
-        userService.getAll((error, success) => {
+        const filterFields = req.query
+        userService.getAll(filterFields, (error, success) => {
             if (error) {
-                return next({
+                res.status(error.status).json({
                     status: error.status,
                     message: error.message,
-                    data: {}
+                    data: error.data
                 })
             }
-            if (success) {
+            if(success){
                 res.status(200).json({
                     status: 200,
                     message: success.message,
@@ -43,9 +43,8 @@ let userController = {
         })
     },
 
-    getById: (req, res, next) => {
+    delete: (req, res, next) => {
         const userId = req.params.userId
-        logger.trace('userController: getById', userId)
         userService.getById(userId, (error, success) => {
             if (error) {
                 return next({
@@ -63,8 +62,6 @@ let userController = {
             }
         })
     }
-
-    // Todo: Implement the update and delete methods
 }
 
 module.exports = userController
