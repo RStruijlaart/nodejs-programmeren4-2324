@@ -10,18 +10,7 @@ tracer.setLevel('warn')
 const endpointToTest = '/api/user'
 
 describe('UC201 Registreren als nieuwe user', () => {
-    /**
-     * Voorbeeld van een beforeEach functie.
-     * Hiermee kun je code hergebruiken of initialiseren.
-     */
-    beforeEach((done) => {
-        console.log('Before each test')
-        done()
-    })
 
-    /**
-     * Hier starten de testcases
-     */
     it('TC-201-1 Verplicht veld ontbreekt', (done) => {
         chai.request(server)
             .post(endpointToTest)
