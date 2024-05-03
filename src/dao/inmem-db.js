@@ -80,14 +80,21 @@ const database = {
     add(item, callback) {
         // Simuleer een asynchrone operatie
         setTimeout(() => {
-            // Voeg een id toe en voeg het item toe aan de database
-            item.id = this._index++
-            // Voeg item toe aan de array
-            this._data.push(item)
 
-            // Roep de callback aan het einde van de operatie
-            // met het toegevoegde item als argument, of null als er een fout is opgetreden
-            callback(null, item)
+            const emailExists = this._data.some(obj => obj.emailAdress === item.emailAdress);
+
+            if(emailExists){
+                callback({ message: `Email adress already in use`, status: 403}, null)
+            }else{
+                // Voeg een id toe en voeg het item toe aan de database
+                item.id = this._index++
+                // Voeg item toe aan de array
+                this._data.push(item)
+
+                // Roep de callback aan het einde van de operatie
+                // met het toegevoegde item als argument, of null als er een fout is opgetreden
+                callback(null, item)
+            }
         }, this._delayTime)
     },
 
