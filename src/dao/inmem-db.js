@@ -51,7 +51,7 @@ const database = {
 
                 for (let field in filterFields) {
                     if(objFields.includes(field) === false){
-                        callback({ message: `Error: field ${field} does not exist or can't be filterd!`, status: 200}, this._data)
+                        callback({ message: `Error: field ${field} does not exist or can't be filterd!`, status: 200, data: this._data}, null)
                         return
                     }
                 }

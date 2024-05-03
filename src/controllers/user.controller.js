@@ -26,12 +26,13 @@ let userController = {
         const filterFields = req.query
         userService.getAll(filterFields, (error, success) => {
             if (error) {
-                res.status(200).json({
-                    status: 200,
+                res.status(error.status).json({
+                    status: error.status,
                     message: error.message,
-                    data: success
+                    data: error.data
                 })
-            }else{
+            }
+            if(success){
                 res.status(200).json({
                     status: 200,
                     message: success.message,
