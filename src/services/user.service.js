@@ -17,7 +17,7 @@ const userService = {
     getAll: (filterFields, callback) => {
         database.getAll(filterFields, (err, data) => {
             if (err) {
-                callback(err, data)
+                callback(err, null)
             } else {
                 console.log(data)
                 callback(null, {
