@@ -26,7 +26,7 @@ const database = {
             lastName: 'Jansen',
             emailAdress: 'm@server.nl',
             password: 'Secred8',
-            isActive: true,
+            isActive: false,
             street: 'oosthof 4',
             city: 'kloosterzande',
             phoneNumber: '06-12345678',
@@ -125,7 +125,7 @@ const database = {
             } else {
 
                 const indexToDelete = this._data.findIndex(obj => obj.id === parseInt(id));
-                this._data = this._data.splice(indexToDelete, 1);
+                this._data.splice(indexToDelete, 1);
 
                 callback(null, null)
             }
