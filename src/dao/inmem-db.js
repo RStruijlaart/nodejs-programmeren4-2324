@@ -46,7 +46,6 @@ const database = {
             if(Object.keys(filterFields).length === 0){
                 callback(null, this._data)
             }else{
-                console.log(filterFields)
                 const objFields = ['firstName', 'lastName', 'emailAdress', 'isActive', 'street', 'city', 'phoneNumber'];
 
                 for (let field in filterFields) {
@@ -112,7 +111,6 @@ const database = {
                 }
 
                 callback(null, this._data[id])
-                console.log(this._data[id])
             }
         }, this._delayTime)
     },
