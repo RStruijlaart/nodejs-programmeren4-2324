@@ -14,8 +14,8 @@ const userService = {
         })
     },
 
-    getAll: (callback) => {
-        database.getAll((err, data) => {
+    getAll: (filterFields, callback) => {
+        database.getAll(filterFields, (err, data) => {
             if (err) {
                 callback(err, null)
             } else {

@@ -92,6 +92,8 @@ const validateUserCreateChaiExpect = (req, res, next) => {
 // Userroutes
 router.post('/api/user', validateUserCreateChaiExpect, userController.create)
 router.get('/api/user', userController.getAll)
+router.get('/api/user?:field1', userController.getAll)
+router.get('/api/user?:field1&:field2', userController.getAll)
 router.get('/api/user/:userId', userController.getById)
 
 // Tijdelijke routes om niet bestaande routes op te vangen

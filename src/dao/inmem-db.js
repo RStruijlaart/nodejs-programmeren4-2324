@@ -39,11 +39,30 @@ const database = {
     _index: 2,
     _delayTime: 500,
 
-    getAll(callback) {
+    getAll(filterFields, callback) {
         // Simuleer een asynchrone operatie
         setTimeout(() => {
-            // Roep de callback aan, en retourneer de data
-            callback(null, this._data)
+
+            if(Object.keys(filterFields).length === 0){
+                callback(null, this._data)
+            }else{
+                console.log(filterFields)
+                const objFields = ['firstName', 'lastName', 'emailAdress', 'isActive', 'street', 'city', 'phoneNumber'];
+
+                for (let field in filterFields) {
+                    if(objFields.includes(field) === false){
+                        callback({ message: `Error: field ${field} does not exist or can't be filterd!`, status: 200}) //persoonlijk zou ik niet 200 geven maar zo staat het in het FO
+                        return
+                    }
+                }
+
+                const filterdData = this._data.filter((obj => {
+                    return Object.keys(filterFields).every(field => obj[field].toString() === filterFields[field]);
+                }));
+
+                callback(null, filterdData)
+            }
+
         }, this._delayTime)
     },
 
@@ -100,7 +119,7 @@ const database = {
 
                 const indexToDelete = this._data.findIndex(obj => obj.id === parseInt(id));
                 this._data = this._data.splice(indexToDelete, 1);
-                
+
                 callback(null, null)
             }
         }, this._delayTime)

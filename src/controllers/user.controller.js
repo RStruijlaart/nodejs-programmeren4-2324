@@ -44,7 +44,8 @@ let userController = {
     },
 
     getAll: (req, res, next) => {
-        userService.getAll((error, success) => {
+        const filterFields = req.query
+        userService.getAll(filterFields, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
