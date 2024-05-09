@@ -1,68 +1,260 @@
 const database = require('../dao/inmem-db')
+const logger = require('../util/logger')
+const db = require('../dao/mysql-db')
 
 const userService = {
     create: (user, callback) => {
-        database.add(user, (err, data) => {
+
+        db.getConnection(function (err, connection) {
             if (err) {
+                logger.error(err)
                 callback(err, null)
-            } else {
-                callback(null, {
-                    message: `User created with id ${data.id}.`,
-                    data: data
-                })
+                return
             }
+          
+            connection.query(
+                'SELECT emailAdress FROM `user`',
+                function (error, results, fields) {
+
+                    if (error) {
+                        callback({message: error.sqlMessage, status: 500, data: {}}, null)
+                    } else {
+                        const emailExists = results.some(obj => obj.emailAdress === user.emailAdress);
+                        console.log(results)
+                        if(emailExists){
+                            callback({ message: `Email adress already in use`, status: 403}, null)
+                        }else{
+                            
+                            let insertQuery = `INSERT INTO \`user\` (firstName, lastName, emailAdress, password, phoneNumber, roles, street, city) VALUES ('${user.firstName}', '${user.lastName}', '${user.emailAdress}', '${user.password}', '${user.phoneNumber}', '${user.roles.toString()}', '${user.street}', '${user.city}' )`;
+                            if(Object.keys(user).includes('isActive')){
+                                insertQuery = `INSERT INTO \`user\` (firstName, lastName, isActive, emailAdress, password, phoneNumber, roles, street, city) VALUES ('${user.firstName}', '${user.lastName}', ${user.isActive}, '${user.emailAdress}', '${user.password}', '${user.phoneNumber}', '${user.roles.toString()}', '${user.street}', '${user.city}' )`;
+                            }
+
+                            connection.query(
+                                insertQuery,
+                                function (insertError, insertResults, insertFields) {
+                                    connection.release()
+                
+                                    if (insertError) {
+                                        callback({message: insertError.sqlMessage, status: 500, data: {}}, null)
+                                    } else {
+                                        console.log(insertQuery)
+                                        callback(null, {
+                                            message: `User created with id ${insertResults.insertId}`,
+                                            data: {}
+                                        })
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            )
         })
     },
 
     getAll: (filterFields, callback) => {
-        database.getAll(filterFields, (err, data) => {
+
+        db.getConnection(function (err, connection) {
             if (err) {
+                logger.error(err)
                 callback(err, null)
-            } else {
-                callback(null, {
-                    message: `Found ${data.length} users.`,
-                    data: data
-                })
+                return
             }
+
+            let query = 'SELECT * FROM `user`';
+
+            if(Object.keys(filterFields)[0]){
+
+                let field1Key = Object.keys(filterFields)[0];
+                let field1Value = filterFields[Object.keys(filterFields)[0]];
+
+                if(field1Value === 'true'){
+                    field1Value = 1; 
+                }else if(field1Value === 'false'){
+                    field1Value = 0; 
+                }
+
+                query = 'SELECT * FROM `user` WHERE `' + field1Key + '` = \'' + field1Value + '\''
+
+                if(Object.keys(filterFields)[1]){
+                    let field2Key = Object.keys(filterFields)[1];
+                    let field2Value = filterFields[Object.keys(filterFields)[1]];
+
+                    if(field2Value === 'true'){
+                        field2Value = 1; 
+                    }else if(field2Value === 'false'){
+                        field2Value = 0; 
+                    }
+                    query = 'SELECT * FROM `user` WHERE `' + field1Key + '` = \'' + field1Value + '\' AND `' + field2Key + '` = \'' + field2Value + '\''
+                }
+            }
+          
+            connection.query(
+                query,
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        callback({message: error.sqlMessage, status: 500, data: {}}, null)
+                    } else {
+                        logger.debug(results)
+
+                        results.forEach((obj) => {
+                            if(obj.roles.length > 0){
+                                obj.roles = obj.roles.split(",");
+                            }else{
+                                obj.roles = [];
+                            }
+                        })
+
+                        if(results[0].roles.length > 0){
+                            results[0].roles = results[0].roles.split(",");
+                        }else{
+                            results[0].roles = [];
+                        }
+
+                        callback(null, {
+                            message: `Found ${results.length} users.`,
+                            data: results
+                        })
+                    }
+                }
+            )
         })
     },
 
     getById: (userId, callback) => {
-        database.getById(userId, (err, data) => {
+
+        db.getConnection(function (err, connection) {
             if (err) {
+                logger.error(err)
                 callback(err, null)
-            } else {
-                callback(null, {
-                    message: `Found user with id ${data.id}.`,
-                    data: data
-                })
+                return
             }
+
+            connection.query(
+                'SELECT * FROM `user` WHERE `id` = ' + userId,
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        console.log(error)
+                        callback({message: error.sqlMessage, status: 500, data: {}}, null)
+                    } else {
+
+                        if(results.length < 1){
+                            callback({ message: `Error: id ${userId} does not exist!`, status: 404}, null)
+                        }else{
+
+                            if(results[0].roles.length > 0){
+                                results[0].roles = results[0].roles.split(",");
+                            }else{
+                                results[0].roles = [];
+                            }
+
+                            callback(null, {
+                                message: `Found user with id ${userId}.`,
+                                data: results[0]
+                            })
+                        }
+            
+                        
+                    }
+                }
+            )
         })
     },
 
     update: (userId, user, callback) => {
-        database.update(userId, user,(err, data) => {
+
+        db.getConnection(function (err, connection) {
             if (err) {
+                logger.error(err)
                 callback(err, null)
-            } else {
-                callback(null, {
-                    message: `Updated user with id ${data.id}.`,
-                    data: data
-                })
+                return
             }
+          
+            connection.query(
+                'SELECT id FROM `user` WHERE `id` = ' + userId,
+                function (error, results, fields) {
+
+                    if (error) {
+                        callback({message: error.sqlMessage, status: 500, data: {}}, null)
+                    } else {
+
+                        if(results.length < 1){
+                            callback({ message: `Error: id ${userId} does not exist!`, status: 404}, null)
+                            return
+                        }
+                      
+                        let insertQuery = `UPDATE \`user\` SET firstName = '${user.firstName}', lastName = '${user.lastName}', emailAdress = '${user.emailAdress}', password = '${user.password}', phoneNumber = '${user.phoneNumber}', roles = '${user.roles.toString()}', street = '${user.street}', city = '${user.city}' WHERE \`id\` = ${userId}`;
+                        
+                        if(Object.keys(user).includes('isActive')){
+                            insertQuery = `UPDATE \`user\` SET firstName = '${user.firstName}', lastName = '${user.lastName}', isActive = ${user.isActive}, emailAdress = '${user.emailAdress}', password = '${user.password}', phoneNumber = '${user.phoneNumber}', roles = '${user.roles.toString()}', street = '${user.street}', city = '${user.city}' WHERE \`id\` = ${userId}`;
+                        }
+                        connection.query(
+                            insertQuery,
+                            function (updateError, updateResults, updateFields) {
+                                connection.release()
+            
+                                if (updateError) {
+                                    callback({message: updateError.sqlMessage, status: 500, data: {}}, null)
+                                } else {
+                                    callback(null, {
+                                        message: `Updated user with id ${userId}`,
+                                        data: user
+                                    })
+                                }
+                            }
+                        )
+                    }
+                }
+            )
         })
     },
 
     delete: (userId, callback) => {
-        database.delete(userId,(err, data) => {
+
+        db.getConnection(function (err, connection) {
             if (err) {
+                logger.error(err)
                 callback(err, null)
-            } else {
-                callback(null, {
-                    message: `User with id ${userId} has been deleted`,
-                    data: data
-                })
+                return
             }
+          
+            connection.query(
+                'SELECT id FROM `user` WHERE `id` = ' + userId,
+                function (error, results, fields) {
+
+                    if (error) {
+                        callback({message: error.sqlMessage, status: 500, data: {}}, null)
+                    } else {
+
+                        if(results.length < 1){
+                            callback({ message: `Error: id ${userId} does not exist!`, status: 404}, null)
+                            return
+                        }
+                      
+                        connection.query(
+                            `DELETE FROM \`user\` WHERE \`id\` = ` + userId,
+                            function (deleteError, deleteResults, deleteFields) {
+                                connection.release()
+            
+                                if (deleteError) {
+                                    callback({message: deleteError.sqlMessage, status: 500, data: {}}, null)
+                                } else {
+                                    callback(null, {
+                                        message: `User with id ${userId} has been deleted`,
+                                        data: {}
+                                    })
+                                    
+                                }
+                            }
+                        )
+                    }
+                }
+            )
         })
     }
 }

@@ -78,6 +78,14 @@ const validateUserCreateChaiExpect = (req, res, next) => {
 
         assert(req.body.roles, 'Missing or incorrect roles field')
         chai.expect(req.body.roles).to.be.a('array')
+        chai.expect(req.body.roles, 'Expected roles not to be empty').to.not.be.empty;
+
+        const roles = req.body.roles
+        
+        const expectedRoles = ['editor', 'guest', 'admin']
+        const hasExpectedRoles = roles.every(x => x === expectedRoles[0] || x === expectedRoles[1] || x === expectedRoles[2]);
+        chai.expect(hasExpectedRoles, "Accepteble roles are 'editor', 'guest' and 'admin'").to.be.true;
+        
         
         next()
     } catch (ex) {
