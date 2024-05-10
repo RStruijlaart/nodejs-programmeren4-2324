@@ -108,12 +108,6 @@ const userService = {
                             }
                         })
 
-                        if(results[0].roles.length > 0){
-                            results[0].roles = results[0].roles.split(",");
-                        }else{
-                            results[0].roles = [];
-                        }
-
                         callback(null, {
                             message: `Found ${results.length} users.`,
                             data: results,
