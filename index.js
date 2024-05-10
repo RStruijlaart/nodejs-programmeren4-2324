@@ -1,4 +1,5 @@
 const express = require('express')
+const authRoutes = require('./src/routes/authentication.routes').routes
 const userRoutes = require('./src/routes/user.routes')
 
 const app = express()
@@ -28,7 +29,8 @@ app.get('/api/info', (req, res) => {
 })
 
 // Hier komen alle routes
-app.use(userRoutes)
+app.use('/api', authRoutes)
+app.use('/api', userRoutes)
 
 // Hier komt de route error handler te staan!
 app.use((req, res, next) => {

@@ -1,4 +1,3 @@
-const database = require('../dao/inmem-db')
 const logger = require('../util/logger')
 const db = require('../dao/mysql-db')
 
@@ -41,7 +40,8 @@ const userService = {
                                         console.log(insertQuery)
                                         callback(null, {
                                             message: `User created with id ${insertResults.insertId}`,
-                                            data: {}
+                                            data: user,
+                                            status: 201
                                         })
                                     }
                                 }
@@ -116,7 +116,8 @@ const userService = {
 
                         callback(null, {
                             message: `Found ${results.length} users.`,
-                            data: results
+                            data: results,
+                            status: 200
                         })
                     }
                 }
@@ -155,7 +156,8 @@ const userService = {
 
                             callback(null, {
                                 message: `Found user with id ${userId}.`,
-                                data: results[0]
+                                data: results[0],
+                                status: 200
                             })
                         }
             
@@ -166,7 +168,12 @@ const userService = {
         })
     },
 
-    update: (userId, user, callback) => {
+    update: (profileId, userId, user, callback) => {
+
+        if(profileId != userId){
+            callback({message: 'can\'t update someone else\'s data', status: 403, data: {}}, null)
+            return
+        }
 
         db.getConnection(function (err, connection) {
             if (err) {
@@ -203,7 +210,8 @@ const userService = {
                                 } else {
                                     callback(null, {
                                         message: `Updated user with id ${userId}`,
-                                        data: user
+                                        data: user,
+                                        status: 200
                                     })
                                 }
                             }
@@ -214,7 +222,12 @@ const userService = {
         })
     },
 
-    delete: (userId, callback) => {
+    delete: (profileId, userId, callback) => {
+
+        if(profileId != userId){
+            callback({message: 'can\'t delete someone else\'s data', status: 403, data: {}}, null)
+            return
+        }
 
         db.getConnection(function (err, connection) {
             if (err) {
@@ -246,12 +259,44 @@ const userService = {
                                 } else {
                                     callback(null, {
                                         message: `User with id ${userId} has been deleted`,
-                                        data: {}
+                                        data: {},
+                                        status: 200
                                     })
                                     
                                 }
                             }
                         )
+                    }
+                }
+            )
+        })
+    },
+
+    getProfile: (userId, callback) => {
+        logger.info('getProfile userId:', userId)
+
+        db.getConnection(function (err, connection) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+                return
+            }
+
+            connection.query(
+                'SELECT id, firstName, lastName FROM `user` WHERE id = ?',
+                [userId],
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        logger.error(error)
+                        callback(error, null)
+                    } else {
+                        logger.debug(results)
+                        callback(null, {
+                            message: `Found ${results.length} user.`,
+                            data: results
+                        })
                     }
                 }
             )
