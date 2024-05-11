@@ -19,7 +19,7 @@ const authController = {
             if (connection) {
                 // 1. Kijk of deze useraccount bestaat.
                 connection.query(
-                    'SELECT `id`, `emailAdress`, `password`, `firstName`, `lastName` FROM `user` WHERE `emailAdress` = ?',
+                    'SELECT * FROM `user` WHERE `emailAdress` = ?',
                     [userCredentials.emailAdress],
                     (err, rows, fields) => {
                         connection.release()
