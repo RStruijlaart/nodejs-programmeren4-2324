@@ -64,10 +64,17 @@ const userService = {
 
             let query = 'SELECT * FROM `user`';
 
+            const acceptedFilterFields = ['firstName', 'lastName', 'isActive', 'emailAdress', 'phoneNumber', 'street', 'city' ]
+
             if(Object.keys(filterFields)[0]){
 
                 let field1Key = Object.keys(filterFields)[0];
                 let field1Value = filterFields[Object.keys(filterFields)[0]];
+                
+                if(!acceptedFilterFields.includes(field1Key)){
+                    callback({message: `Error: field ${field1Key} does not exist or can't be filterd!`, status: 200, data: {}}, null)
+                    return
+                }
 
                 if(field1Value === 'true'){
                     field1Value = 1; 
@@ -80,6 +87,11 @@ const userService = {
                 if(Object.keys(filterFields)[1]){
                     let field2Key = Object.keys(filterFields)[1];
                     let field2Value = filterFields[Object.keys(filterFields)[1]];
+
+                    if(!acceptedFilterFields.includes(field2Key)){
+                        callback({message: `Error: field ${field2Key} does not exist or can't be filterd!`, status: 200, data: {}}, null)
+                        return
+                    }
 
                     if(field2Value === 'true'){
                         field2Value = 1; 
