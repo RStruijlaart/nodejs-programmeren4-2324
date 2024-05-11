@@ -242,9 +242,13 @@ const userService = {
                             callback({message: 'can\'t delete someone else\'s data', status: 403, data: {}}, null)
                             return
                         }
+                        
+                        deleteMealParticipantsSql = `DELETE FROM \`meal_participants_user\` WHERE \`mealId\` in (SELECT id FROM \`meal\` WHERE cookId = ${userId});`
+                        deleteMealsSql = `DELETE FROM \`meal\` WHERE \`cookId\` = ${userId};`;
+                        deleteUserSql = `DELETE FROM \`user\` WHERE \`id\` = ${userId};`;
                       
                         connection.query(
-                            `DELETE FROM \`user\` WHERE \`id\` = ` + userId,
+                            deleteMealParticipantsSql + deleteMealsSql + deleteUserSql,
                             function (deleteError, deleteResults, deleteFields) {
                                 connection.release()
             
