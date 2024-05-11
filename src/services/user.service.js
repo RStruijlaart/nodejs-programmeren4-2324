@@ -176,11 +176,6 @@ const userService = {
 
     update: (profileId, userId, user, callback) => {
 
-        if(profileId != userId){
-            callback({message: 'can\'t update someone else\'s data', status: 403, data: {}}, null)
-            return
-        }
-
         db.getConnection(function (err, connection) {
             if (err) {
                 logger.error(err)
@@ -198,6 +193,11 @@ const userService = {
 
                         if(results.length < 1){
                             callback({ message: `Error: id ${userId} does not exist!`, status: 404}, null)
+                            return
+                        }
+
+                        if(profileId != userId){
+                            callback({message: 'can\'t update someone else\'s data', status: 403, data: {}}, null)
                             return
                         }
                       
