@@ -60,34 +60,102 @@ const mealService = {
                 callback(err, null)
                 return
             }
-
+    
             connection.query(
                 `SELECT * FROM \`meal\``,
                 function (error, results, fields) {
-                    connection.release()
-
+    
                     if (error) {
-                        callback({message: error.sqlMessage, status: 500, data: {}}, null)
-                    } else {
-                        logger.debug(results)
-
-                        results.forEach((obj) => {
+                        connection.release();
+                        callback({message: error.sqlMessage, status: 500, data: {}}, null);
+                        return;
+                    }
+    
+                    const promises = results.map((obj) => {
+                        return new Promise((resolve, reject) => {
                             if(obj.allergenes.length > 0){
                                 obj.allergenes = obj.allergenes.split(",");
-                            }else{
+                            } else {
                                 obj.allergenes = [];
                             }
+    
+                            connection.query(
+                                'SELECT * FROM `user` WHERE `id` = ' + obj.cookId,
+                                function (userError, userResults, userFields) {
+                                    
+                                    if (userError) {
+                                        connection.release();
+                                        reject({message: userError.sqlMessage, status: 500, data: {}});
+                                        return;
+                                    }
+    
+                                    let cook;
+                                    
+                                    if(userResults.length < 1){
+                                        cook = "unknown";
+                                    } else {
+                                        userResults.forEach((obj) => {
+                                            if(obj.roles.length > 0){
+                                                obj.roles = obj.roles.split(",");
+                                            } else {
+                                                obj.roles = [];
+                                            }
+                                        });
+    
+                                        cook = userResults[0];
+                                        delete cook.password;
+                                    }
+    
+                                    connection.query(
+                                        `SELECT * FROM \`user\` WHERE id IN (SELECT userId FROM \`meal_participants_user\` WHERE mealId = ${obj.id})`,
+                                        function (participantsError, participantsResults, participantsFields) {
+                                            
+                                            if (participantsError) {
+                                                connection.release();
+                                                reject({message: participantsError.sqlMessage, status: 500, data: {}});
+                                                return;
+                                            }
+    
+                                            let participants;
+                                            if(participantsResults.length < 1){
+                                                participants = "unknown";
+                                            } else {
+                                                participantsResults.forEach((obj) => {
+                                                    if(obj.roles.length > 0){
+                                                        obj.roles = obj.roles.split(",");
+                                                    } else {
+                                                        obj.roles = [];
+                                                    }
+                                                    delete obj.password;
+                                                });
+                                                participants = participantsResults;
+                                            }
+    
+                                            const meal = {...obj, cook, participants};
+                                            resolve(meal);
+                                        }
+                                    );
+                                }
+                            );
+                        });
+                    });
+    
+                    Promise.all(promises)
+                        .then((modifiedResults) => {
+                            connection.release();
+                            callback(null, {
+                                message: `Found ${modifiedResults.length} meals.`,
+                                data: modifiedResults,
+                                status: 200
+                            });
                         })
-
-                        callback(null, {
-                            message: `Found ${results.length} meals.`,
-                            data: results,
-                            status: 200
-                        })
-                    }
+                        .catch((err) => {
+                            connection.release();
+                            callback(err, null);
+                        });
                 }
-            )
-        })
+            );
+        });
     },
 
     getById: (mealId, callback) => {
@@ -118,15 +186,81 @@ const mealService = {
                             }else{
                                 results[0].allergenes = [];
                             }
+                            
+                            connection.query(
+                                'SELECT * FROM `user` WHERE `id` = ' + results[0].cookId,
+                                function (userError, userResults, userFields) {
+                                    connection.release()
+                
+                                    if (userError) {
+                                        console.log(userError)
+                                        callback({message: userError.sqlMessage, status: 500, data: {}}, null)
+                                    } else {
+                
+                                        let cook;
+                                        
+                                        if(userResults.length < 1){
+                                            cook = "unknown";
+                                        }else{
+                
+                                            if(userResults[0].roles.length > 0){
+                                                userResults[0].roles = results[0].roles.split(",");
+                                            }else{
+                                                userResults[0].roles = [];
+                                            }  
 
-                            callback(null, {
-                                message: `Found meal with id ${mealId}.`,
-                                data: results[0],
-                                status: 200
-                            })
+                                            cook = userResults[0];
+
+                                            delete cook.password;
+                                        }
+                                        
+                                        connection.query(
+                                            `SELECT * FROM \`user\` WHERE id IN (SELECT userId FROM \`meal_participants_user\` WHERE mealId = ${mealId})`,
+                                            function (participantsError, participantsResults, participantsFields) {
+                                                connection.release()
+                            
+                                                if (participantsError) {
+                                                    console.log(participantsError)
+                                                    callback({message: participantsError.sqlMessage, status: 500, data: {}}, null)
+                                                } else {
+
+                                                    let participants;
+                            
+                                                    if(participantsResults.length < 1){
+                                                        participants = "unknown"
+                                                    }else{
+                            
+                                                        participantsResults.forEach((obj) => {
+                                                            if(obj.roles.length > 0){
+                                                                obj.roles = obj.roles.split(",");
+                                                            }else{
+                                                                obj.roles = [];
+                                                            }
+                                                        })
+
+                                                        participantsResults.forEach((obj) => {
+                                                            delete obj.password
+                                                        })
+
+                                                        participants = participantsResults;
+                                                    }
+
+                                                    const meal = {...results[0], cook, participants}
+
+                                                    console.log(meal);
+        
+                                                    callback(null, {
+                                                        message: `Found meal with id ${mealId}.`,
+                                                        data: meal,
+                                                        status: 200
+                                                    }) 
+                                                }
+                                            }
+                                        )  
+                                    }
+                                }
+                            )   
                         }
-            
-                        
                     }
                 }
             )
