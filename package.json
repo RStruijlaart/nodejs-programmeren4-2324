@@ -23,7 +23,7 @@
         "tabWidth": 4
     },
     "dependencies": {
-        "chai": "^4.3.10",
+        "chai": "^5.1.1",
         "chai-http": "^4.4.0",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
