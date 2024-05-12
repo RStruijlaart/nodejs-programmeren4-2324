@@ -71,7 +71,7 @@ describe('UC-301 Toevoegen van maaltijd', () => {
                 price: 10.50,
                 dateTime: "2022-03-22 17:35:00",
                 maxAmountOfParticipants: 6,
-                imageUrl: 'https://www.google.com/search?sca_esv=f42f57a008774f06&rlz=1C1CHBF_enNL887NL887&sxsrf=ADLYWIL97C595p2Q9-_mjlLNsFzAQmzh9A:1715347368240&q=spaghetti+bolognese&tbm=isch&source=lnms&sa=X&sqi=2&ved=2ahUKEwiRibP0loOGAxVQhP0HHVqaAccQ0pQJegQIDBAB&biw=2560&bih=1313&dpr=1#imgrc=qV0QuJqXqWeLFM',
+                imageUrl: 'https://www.google.com/image.nl',
                 allergenes: ["gluten", "lactose"]
                 
             })
@@ -102,7 +102,7 @@ describe('UC-301 Toevoegen van maaltijd', () => {
                 price: 10.50,
                 dateTime: "2022-03-22 17:35:00",
                 maxAmountOfParticipants: 6,
-                imageUrl: 'https://www.google.com/search?sca_esv=f42f57a008774f06&rlz=1C1CHBF_enNL887NL887&sxsrf=ADLYWIL97C595p2Q9-_mjlLNsFzAQmzh9A:1715347368240&q=spaghetti+bolognese&tbm=isch&source=lnms&sa=X&sqi=2&ved=2ahUKEwiRibP0loOGAxVQhP0HHVqaAccQ0pQJegQIDBAB&biw=2560&bih=1313&dpr=1#imgrc=qV0QuJqXqWeLFM',
+                imageUrl: 'https://www.google.com/image.nl',
                 allergenes: ["gluten", "lactose"]
             })
             .end((err, res) => {
@@ -134,7 +134,7 @@ describe('UC-301 Toevoegen van maaltijd', () => {
                 price: 10.50,
                 dateTime: "2022-03-22 17:35:00",
                 maxAmountOfParticipants: 6,
-                imageUrl: 'https://www.google.com/search?sca_esv=f42f57a008774f06&rlz=1C1CHBF_enNL887NL887&sxsrf=ADLYWIL97C595p2Q9-_mjlLNsFzAQmzh9A:1715347368240&q=spaghetti+bolognese&tbm=isch&source=lnms&sa=X&sqi=2&ved=2ahUKEwiRibP0loOGAxVQhP0HHVqaAccQ0pQJegQIDBAB&biw=2560&bih=1313&dpr=1#imgrc=qV0QuJqXqWeLFM',
+                imageUrl: 'https://www.google.com/image.nl',
                 allergenes: ["gluten", "lactose"]
                 
             })
