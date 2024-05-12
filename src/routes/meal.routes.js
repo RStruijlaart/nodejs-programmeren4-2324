@@ -40,6 +40,10 @@ const validateMealCreateChaiExpect = (req, res, next) => {
         assert(req.body.dateTime, 'Missing or incorrect dateTime field')
         chai.expect(req.body.dateTime).to.not.be.empty
         chai.expect(req.body.dateTime).to.be.a('string')
+        chai.expect(req.body.dateTime).to.match(
+            /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+            'Invalid dateTime'
+        )
 
         assert(req.body.maxAmountOfParticipants, 'Missing or incorrect maxAmountOfParticipants field')
         chai.expect(req.body.maxAmountOfParticipants).to.be.a('number')

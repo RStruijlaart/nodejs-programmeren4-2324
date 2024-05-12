@@ -39,6 +39,7 @@ const mealService = {
                 function (error, results, fields) {
 
                     if (error) {
+                        logger.error(error.sqlMessage);
                         callback({message: error.sqlMessage, status: 500, data: {}}, null)
                     } else {
                         callback(null, {
