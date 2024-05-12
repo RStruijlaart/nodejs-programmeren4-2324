@@ -11,7 +11,7 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
-const endpointToTest = '/api/user'
+const endpointToTest = '/api/meal'
 
 const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
 const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
@@ -19,7 +19,7 @@ const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
 const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
 const INSERT_USERS = `INSERT INTO \`user\` VALUES 
-(1,'Mariëtte','van den Dullemen',1,'m.vandullemen@server.nl','secret','','','','kloosterzande'),
+(1,'Mariëtte','van den Dullemen',1,'m.vandullemen@server.nl','secret','','','',''),
 (2,'John','Doe',1,'j.doe@server.com','secret','06 12425475','editor,guest','',''),
 (3,'Herman','Huizinga',1,'h.huizinga@server.nl','secret','06-12345678','editor,guest','',''),
 (4,'Marieke','Van Dam',0,'m.vandam@server.nl','secret','06-12345678','editor,guest','',''),
@@ -34,7 +34,7 @@ const INSERT_MEALS = `INSERT INTO \`meal\` VALUES
 
 const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2),(1,3),(1,5),(2,4),(3,3),(3,4),(4,2),(5,4);`
 
-describe('UC204 Opvragen van usergegevens bij ID', () => {
+describe('UC-301 Toevoegen van maaltijd', () => {
 
     beforeEach((done) => {
         
@@ -57,22 +57,62 @@ describe('UC204 Opvragen van usergegevens bij ID', () => {
                 }
             )
         })
-    }),
+    })
 
-    it('TC-204-1 Ongeldige token', (done) => {
-        const token = "yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcxNTQ0MDUxMCwiZXhwIjoxNzE2NDc3MzEwfQ.MUT48TOZYZ0Zt6B2r4-mhPC8tyV8qCNpvuZYN2fWT6k";
+    it('TC-301-1 Verplicht veld ontbreekt', (done) => {
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
-            .get(endpointToTest + '/1')
+            .post(endpointToTest)
             .set('Authorization', 'Bearer ' + token)
+            .send({
+
+                //name: 'Spagehetti bolognese',
+                description: 'Lekkere spaghetti bolognese',
+                price: 10.50,
+                dateTime: "2022-03-22 17:35:00",
+                maxAmountOfParticipants: 6,
+                imageUrl: 'https://www.google.com/search?sca_esv=f42f57a008774f06&rlz=1C1CHBF_enNL887NL887&sxsrf=ADLYWIL97C595p2Q9-_mjlLNsFzAQmzh9A:1715347368240&q=spaghetti+bolognese&tbm=isch&source=lnms&sa=X&sqi=2&ved=2ahUKEwiRibP0loOGAxVQhP0HHVqaAccQ0pQJegQIDBAB&biw=2560&bih=1313&dpr=1#imgrc=qV0QuJqXqWeLFM',
+                allergenes: ["gluten", "lactose"]
+                
+            })
             .end((err, res) => {
             
+                chai.expect(res).to.have.status(400)
+                chai.expect(res).not.to.have.status(200)
+                chai.expect(res.body).to.be.a('object')
+                chai.expect(res.body).to.have.property('status').equals(400)
+                chai.expect(res.body)
+                    .to.have.property('message')
+                    .equals('Missing or incorrect name field')
+                chai
+                    .expect(res.body)
+                    .to.have.property('data')
+                    .that.is.a('object').that.is.empty
+
+                done()
+            })
+    }),
+
+    it('TC-301-2 Niet ingelogd', (done) => {
+        chai.request(server)
+            .post(endpointToTest)
+            .send({
+                name: 'Spagehetti bolognese',
+                description: 'Lekkere spaghetti bolognese',
+                price: 10.50,
+                dateTime: "2022-03-22 17:35:00",
+                maxAmountOfParticipants: 6,
+                imageUrl: 'https://www.google.com/search?sca_esv=f42f57a008774f06&rlz=1C1CHBF_enNL887NL887&sxsrf=ADLYWIL97C595p2Q9-_mjlLNsFzAQmzh9A:1715347368240&q=spaghetti+bolognese&tbm=isch&source=lnms&sa=X&sqi=2&ved=2ahUKEwiRibP0loOGAxVQhP0HHVqaAccQ0pQJegQIDBAB&biw=2560&bih=1313&dpr=1#imgrc=qV0QuJqXqWeLFM',
+                allergenes: ["gluten", "lactose"]
+            })
+            .end((err, res) => {
                 chai.expect(res).to.have.status(401)
                 chai.expect(res).not.to.have.status(200)
                 chai.expect(res.body).to.be.a('object')
                 chai.expect(res.body).to.have.property('status').equals(401)
                 chai.expect(res.body)
                     .to.have.property('message')
-                    .equals('Not authorized!')
+                    .equals('Authorization header missing!')
                 chai
                     .expect(res.body)
                     .to.have.property('data')
@@ -81,60 +121,33 @@ describe('UC204 Opvragen van usergegevens bij ID', () => {
                 done()
             })
     }),
-    
-    it('TC-204-2 Gebruiker-ID bestaat niet', (done) => {
+
+    it('TC-301-3 Maaltijd succesvol toegevoegd', (done) => {
         const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
-            .get(endpointToTest + '/-1')
+            .post(endpointToTest)
             .set('Authorization', 'Bearer ' + token)
+            .send({
+
+                name: 'Spagehetti bolognese',
+                description: 'Lekkere spaghetti bolognese',
+                price: 10.50,
+                dateTime: "2022-03-22 17:35:00",
+                maxAmountOfParticipants: 6,
+                imageUrl: 'https://www.google.com/search?sca_esv=f42f57a008774f06&rlz=1C1CHBF_enNL887NL887&sxsrf=ADLYWIL97C595p2Q9-_mjlLNsFzAQmzh9A:1715347368240&q=spaghetti+bolognese&tbm=isch&source=lnms&sa=X&sqi=2&ved=2ahUKEwiRibP0loOGAxVQhP0HHVqaAccQ0pQJegQIDBAB&biw=2560&bih=1313&dpr=1#imgrc=qV0QuJqXqWeLFM',
+                allergenes: ["gluten", "lactose"]
+                
+            })
             .end((err, res) => {
             
-                chai.expect(res).to.have.status(404)
-                chai.expect(res).not.to.have.status(200)
+                chai.expect(res).to.have.status(201)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(404)
-                chai.expect(res.body)
-                    .to.have.property('message')
-                    .equals('Error: id -1 does not exist!')
-                chai
-                    .expect(res.body)
-                    .to.have.property('data')
-                    .that.is.a('object').that.is.empty
-
-                done()
-            })
-    }),
-
-    it('TC-201-3 Gebruiker-ID bestaat', (done) => {
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
-
-        chai.request(server)
-            .get(endpointToTest + '/1')
-            .set('Authorization', 'Bearer ' + token)
-            .end((err, res) => {
-                
-                chai.expect(res).to.have.status(200)
-                chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(200)
-                chai.expect(res.body)
-                    .to.have.property('message')
-                    .equals("Found user with id 1.")
+                chai.expect(res.body).to.have.property('status').equals(201)
+                chai.expect(res.body).to.have.property('message')
                 chai
                     .expect(res.body)
                     .to.have.property('data')
                     .that.is.a('object').that.is.not.empty
-
-                    const data = res.body.data
-                    data.should.have.property('firstName')
-                    data.should.have.property('lastName')
-                    data.should.have.property('emailAdress')
-                    data.should.have.property('password')
-                    data.should.have.property('isActive')
-                    data.should.have.property('street')
-                    data.should.have.property('city')
-                    data.should.have.property('phoneNumber')
-                    data.should.have.property('roles')
-                    data.should.have.property('id').that.is.a('number')
 
                 done()
             })

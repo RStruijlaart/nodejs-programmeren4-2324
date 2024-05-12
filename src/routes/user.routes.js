@@ -4,6 +4,7 @@ const chai = require('chai')
 chai.should()
 const router = express.Router()
 const userController = require('../controllers/user.controller')
+const validateToken = require('./authentication.routes.js').validateToken
 
 // Tijdelijke functie om niet bestaande routes op te vangen
 const notFound = (req, res, next) => {
@@ -78,6 +79,14 @@ const validateUserCreateChaiExpect = (req, res, next) => {
 
         assert(req.body.roles, 'Missing or incorrect roles field')
         chai.expect(req.body.roles).to.be.a('array')
+        chai.expect(req.body.roles, 'Expected roles not to be empty').to.not.be.empty;
+
+        const roles = req.body.roles
+        
+        const expectedRoles = ['editor', 'guest', 'admin']
+        const hasExpectedRoles = roles.every(x => x === expectedRoles[0] || x === expectedRoles[1] || x === expectedRoles[2]);
+        chai.expect(hasExpectedRoles, "Accepteble roles are 'editor', 'guest' and 'admin'").to.be.true;
+        
         
         next()
     } catch (ex) {
@@ -90,14 +99,13 @@ const validateUserCreateChaiExpect = (req, res, next) => {
 }
 
 // Userroutes
-router.post('/api/user', validateUserCreateChaiExpect, userController.create)
-router.get('/api/user', userController.getAll)
-router.get('/api/user?:field1', userController.getAll)
-router.get('/api/user?:field1&:field2', userController.getAll)
-router.get('/api/user/:userId', userController.getById)
-
-// Tijdelijke routes om niet bestaande routes op te vangen
-router.put('/api/user/:userId', validateUserCreateChaiExpect, userController.update)
-router.delete('/api/user/:userId', userController.delete)
+router.post('/user', validateUserCreateChaiExpect, userController.create)
+router.get('/user', userController.getAll)
+router.get('/user/profile', validateToken, userController.getProfile)
+router.get('/user?:field1', userController.getAll)
+router.get('/user?:field1&:field2', userController.getAll)
+router.get('/user/:userId', validateToken, userController.getById)
+router.put('/user/:userId', validateToken, validateUserCreateChaiExpect, userController.update)
+router.delete('/user/:userId', validateToken, userController.delete)
 
 module.exports = router

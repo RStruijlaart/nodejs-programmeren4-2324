@@ -11,7 +11,7 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
-const endpointToTest = '/api/user'
+const endpointToTest = '/api/meal'
 
 const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
 const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
@@ -19,7 +19,7 @@ const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
 const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
 const INSERT_USERS = `INSERT INTO \`user\` VALUES 
-(1,'Mariëtte','van den Dullemen',1,'m.vandullemen@server.nl','secret','','','','kloosterzande'),
+(1,'Mariëtte','van den Dullemen',1,'m.vandullemen@server.nl','secret','','','',''),
 (2,'John','Doe',1,'j.doe@server.com','secret','06 12425475','editor,guest','',''),
 (3,'Herman','Huizinga',1,'h.huizinga@server.nl','secret','06-12345678','editor,guest','',''),
 (4,'Marieke','Van Dam',0,'m.vandam@server.nl','secret','06-12345678','editor,guest','',''),
@@ -34,7 +34,7 @@ const INSERT_MEALS = `INSERT INTO \`meal\` VALUES
 
 const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2),(1,3),(1,5),(2,4),(3,3),(3,4),(4,2),(5,4);`
 
-describe('UC204 Opvragen van usergegevens bij ID', () => {
+describe('UC-304 Opvragen van maaltijd bij ID', () => {
 
     beforeEach((done) => {
         
@@ -57,36 +57,11 @@ describe('UC204 Opvragen van usergegevens bij ID', () => {
                 }
             )
         })
-    }),
+    })
 
-    it('TC-204-1 Ongeldige token', (done) => {
-        const token = "yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcxNTQ0MDUxMCwiZXhwIjoxNzE2NDc3MzEwfQ.MUT48TOZYZ0Zt6B2r4-mhPC8tyV8qCNpvuZYN2fWT6k";
+    it('TC-304-1 Maaltijd bestaat niet', (done) => {
         chai.request(server)
-            .get(endpointToTest + '/1')
-            .set('Authorization', 'Bearer ' + token)
-            .end((err, res) => {
-            
-                chai.expect(res).to.have.status(401)
-                chai.expect(res).not.to.have.status(200)
-                chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(401)
-                chai.expect(res.body)
-                    .to.have.property('message')
-                    .equals('Not authorized!')
-                chai
-                    .expect(res.body)
-                    .to.have.property('data')
-                    .that.is.a('object').that.is.empty
-
-                done()
-            })
-    }),
-    
-    it('TC-204-2 Gebruiker-ID bestaat niet', (done) => {
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
-        chai.request(server)
-            .get(endpointToTest + '/-1')
-            .set('Authorization', 'Bearer ' + token)
+            .get(endpointToTest + "/-1")
             .end((err, res) => {
             
                 chai.expect(res).to.have.status(404)
@@ -105,36 +80,36 @@ describe('UC204 Opvragen van usergegevens bij ID', () => {
             })
     }),
 
-    it('TC-201-3 Gebruiker-ID bestaat', (done) => {
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
-
+    it('TC-304-2 Details van maaltijd geretourneerd', (done) => {
         chai.request(server)
-            .get(endpointToTest + '/1')
-            .set('Authorization', 'Bearer ' + token)
+            .get(endpointToTest + "/1")
             .end((err, res) => {
-                
+            
                 chai.expect(res).to.have.status(200)
                 chai.expect(res.body).to.be.a('object')
                 chai.expect(res.body).to.have.property('status').equals(200)
                 chai.expect(res.body)
                     .to.have.property('message')
-                    .equals("Found user with id 1.")
+                    .equals('Found meal with id 1.')
                 chai
                     .expect(res.body)
                     .to.have.property('data')
                     .that.is.a('object').that.is.not.empty
 
-                    const data = res.body.data
-                    data.should.have.property('firstName')
-                    data.should.have.property('lastName')
-                    data.should.have.property('emailAdress')
-                    data.should.have.property('password')
-                    data.should.have.property('isActive')
-                    data.should.have.property('street')
-                    data.should.have.property('city')
-                    data.should.have.property('phoneNumber')
-                    data.should.have.property('roles')
-                    data.should.have.property('id').that.is.a('number')
+                const data = res.body.data
+                data.should.have.property('name')
+                data.should.have.property('description')
+                data.should.have.property('isActive')
+                data.should.have.property('isVega')
+                data.should.have.property('isVegan')
+                data.should.have.property('isToTakeHome')
+                data.should.have.property('dateTime')
+                data.should.have.property('maxAmountOfParticipants')
+                data.should.have.property('price')
+                data.should.have.property('imageUrl')
+                data.should.have.property('cook').that.is.an('object')
+                data.should.have.property('allergenes')
+                data.should.have.property('participants').that.is.an('array')
 
                 done()
             })
