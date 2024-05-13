@@ -22,8 +22,8 @@ app.get('/', function (req, res) {
 app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
     const info = {
-        name: 'My Nodejs Express server test',
-        version: '0.0.1',
+        name: 'My Nodejs Express server - share-a-meal',
+        version: '1.0.0',
         description: 'This is a simple Nodejs Express server'
     }
     res.json(info)
